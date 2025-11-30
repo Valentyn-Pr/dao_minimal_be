@@ -9,6 +9,8 @@ for local deploy:
 - ensure sqlite3 is installed
 - db file will be created under DATABASE_URL from .evn
 - create .env file in root with next vars
+- generate prisma types - yarn prisma generate
+- push changes to db - yarn prisma db push
 
 DATABASE_URL="file:./prisma/dev.db" -> path to db file. 
 SERVER_PORT=8000 -> webserver port
