@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+model AppSettings {
+  id                 Int      @id @default(1) // always 1 so only 1 row should be present
+  lastProcessedBlock Int
+  lastUpdate         DateTime @updatedAt
+}
+
+model Proposal {
+  id             BigInt      @id // no default() - matches ID from a smart contract
+  creator        String
+  description    String
+  isExecuted     Boolean
+  supportedCnt   String
+  rejectedCnt    String
+  created_at     DateTime //should come from block TS where proposal created event raised!
+  //should come from block TS where proposal executed event raised!
+  executed_at    DateTime?
+  // Relations
+  votes          VotedEvent[]             @relation("ProposalVotes")
+  executions     ProposalExecutedEvent[]  @relation("ProposalExecutions")
+
+  @@map("proposals")
+}
+
+// Stores: event Voted(uint proposalId, address voter, bool vote, uint amount);
+model VotedEvent {
+  id         Int      @id @default(autoincrement())
+  proposalId BigInt
+  voter      String
+  vote       Boolean
+  amount     String
+  votedAt    DateTime
+
+  // Relation
+  proposal   Proposal @relation("ProposalVotes", fields: [proposalId], references: [id])
+
+  @@map("voted_events")
+}
+
+// Stores: event ProposalExecuted(uint proposalId, address executor, bool rewarded);
+model ProposalExecutedEvent {
+  id         Int      @id @default(autoincrement())
+  proposalId BigInt
+  executor   String
+  rewarded   Boolean
+  executedAt DateTime
+
+  // Relation
+  proposal   Proposal @relation("ProposalExecutions", fields: [proposalId], references: [id])
+
+  @@map("proposal_executed_events")
+}
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
